@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEventHandler, useRef } from "react";
-import { styled } from '@mui/material/styles';
+import { Theme, styled } from '@mui/material/styles';
 import {
     Box,
     Card,
@@ -20,10 +20,10 @@ import {
     Typography,
 
 } from "@mui/material";
-import { Theme } from "@emotion/react";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import { formatTo2Decimal } from "./utility";
 
 const Colors = [
     "#e57373",
@@ -83,12 +83,12 @@ interface ExpenseTableTitleProps {
 
 function ExpenseTableTitle(props: ExpenseTableTitleProps) {
     const { addExpense } = props;
-    return (<div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
-        <Typography sx={{ fontSize: 20 }} color="text.secondary" gutterBottom>
+    return (<div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginBottom: '16px' }}>
+        <Typography sx={{ fontSize: 20, padding: '0px', margin: '0px' }} color="text.secondary" gutterBottom>
             Expenses
         </Typography>
         <div>
-            <IconButton onClick={addExpense}>
+            <IconButton onClick={addExpense} sx={{ padding: '0px', margin: '0px' }}>
                 <AddBoxIcon sx={{ fontSize: 20 }} />
             </IconButton>
         </div>
@@ -96,6 +96,7 @@ function ExpenseTableTitle(props: ExpenseTableTitleProps) {
 }
 
 interface ExpenseTableHeadProps {
+    theme: Theme,
     members: PersonInfo[],
     removeMemberAllChecked: (index: number, member: PersonInfo) => void;
     addMemberAllChecked: (memberId: any) => void;
@@ -114,6 +115,7 @@ interface ExpenseTableHeadProps {
  */
 function ExpenseTableHead(props: ExpenseTableHeadProps) {
     const {
+        theme,
         taxPercent,
         onTaxPercentChange,
         taxCheckedCnt,
@@ -139,8 +141,8 @@ function ExpenseTableHead(props: ExpenseTableHeadProps) {
     }
 
     return (
-        <TableHead>
-            <TableRow>
+        <TableHead sx={{ backgroundColor: theme.palette.secondary.main }}>
+            <TableRow >
                 {/* TAX HEAD CELL */}
                 <TaxCell>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -266,6 +268,7 @@ export default function ExpenseTable(props: {
     theme: Theme;
     toggleTheme: any;
 }) {
+    const { theme, toggleTheme } = props;
 
     const [taxCheckedCnt, setTaxCheckedCnt] = useState<number>(0);
     const [taxPercent, setTaxPercent] = useState<number>(7);
@@ -425,12 +428,24 @@ export default function ExpenseTable(props: {
         setMembers(updatedMembers);
     };
 
-    const calculateTotalExpense = () => {
+
+    const calculateTotalExpense = (): number => {
         return expenses.reduce((total, expense) => {
             const taxMultiplier = expense.tax ? (taxPercent / 100) + 1 : 1;
             return total + (expense.amount * taxMultiplier);
-        }, 0).toFixed(2);
+        }, 0);
     };
+
+    const calculateTotalUnassignedExpense = (): number => {
+        return expenses.reduce((total, expense) => {
+            const taxMultiplier = expense.tax ? (taxPercent / 100) + 1 : 1;
+            if (expense.memberIds.length === 0) {
+                return total + expense.amount * taxMultiplier;
+            } else {
+                return total;
+            }
+        }, 0);
+    }
 
     const deleteExpense = (number: number) => {
         const expensesCopy = [
@@ -448,9 +463,16 @@ export default function ExpenseTable(props: {
                         <Typography sx={{ fontSize: 20 }} color="text.secondary" gutterBottom>
                             Total Expenses
                         </Typography>
-                        <Typography variant="h3" component="div" sx={{ padding: '8px' }}>
-                            {calculateTotalExpense()}
+                        <Typography variant="h3" component="div" sx={{ marginBottom: '8px' }}>
+                            ${formatTo2Decimal(calculateTotalExpense())}
                         </Typography>
+                        {
+                            calculateTotalUnassignedExpense() !== 0 ?
+                                <Typography sx={{ fontSize: 16, marginBottom: '8px' }} color="error.main" gutterBottom>
+                                    Unassigned Expenses:
+                                    ${formatTo2Decimal(calculateTotalUnassignedExpense())}
+                                </Typography> : null
+                        }
                         {members.map((member, index) => {
                             return (
                                 <Chip
@@ -459,7 +481,8 @@ export default function ExpenseTable(props: {
                                     style={{
                                         fontSize: '16px',
                                         backgroundColor: member.color,
-                                        margin: "8px",
+                                        marginTop: "8px",
+                                        marginBottom: "8px",
                                     }}
                                 />
                             );
@@ -473,6 +496,7 @@ export default function ExpenseTable(props: {
                     <ExpenseTableTitle addExpense={addExpense} />
                     <Table size="small">
                         <ExpenseTableHead
+                            theme={theme}
                             taxPercent={taxPercent}
                             onTaxPercentChange={onTaxPercentChange}
                             taxCheckedCnt={taxCheckedCnt}

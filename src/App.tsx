@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { Card, ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import EnhancedTable from './Table/ExpenseTable';
-import ExpenseTable from './Table/Table';
-import TopBar from './Table/TopBar';
+import ExpenseTable from './Component/Table';
+import TopBar from './Component/TopBar';
 
 // @TODO: add light/dark theme switch
 
 const baseTheme = createTheme({
   typography: {
-    fontFamily: '"Helvetica", "Helvetica", "Arial", sans-serif', // Customize the font
+    fontFamily: [
+      '"Helvetica Neue"',
+      '"Helvetica Neue"',
+      '"Helvetica Neue"',
+      '"Helvetica Neue"',
+    ].join(','),
   },
   palette: {
     background: {
@@ -19,7 +23,28 @@ const baseTheme = createTheme({
     primary: {
       main: '#000000', // Customize the primary color
     },
-    // Add other color overrides if needed
+    secondary: {
+      main: '#fafafa',
+    },
+    error: {
+      main: '#ff6b6b',
+    },
+    warning: {
+      main: '#ffa726', // Your warning color
+      contrastText: '#ffffff', // Text color that contrasts with the warning color
+    },
+    info: {
+      main: '#14a37f',
+    },
+    success: {
+      main: '#2e7d32',
+    },
+    text: {
+      primary: '#333333',
+      secondary: '#666666',
+      disabled: '#aaaaaa',
+      // You can add a custom field for warning text like this
+    },
   },
 })
 

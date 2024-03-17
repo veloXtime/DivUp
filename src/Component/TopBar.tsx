@@ -7,7 +7,7 @@ export default function TopBar({ theme, toggleTheme }: any) {
             backgroundColor: theme.palette.grey[200], // slightly darker for the sidebar
         }}>
             <Toolbar>
-                <Typography variant="h6" style={{
+                <Typography variant="h4" style={{
                     flexGrow: 1, textAlign: 'left',
                     color: theme.palette.primary.main,
                     display: 'inline-block', // Added for inline display
